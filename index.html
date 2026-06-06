@@ -3,492 +3,876 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lahore Lead Finder</title>
+<title>Marbiwaz — Lead CRM</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-  :root {
-    --bg: #0a0a0a;
-    --surface: #111111;
-    --border: #222;
-    --accent: #c8ff00;
-    --accent2: #ff6b35;
-    --text: #f0f0f0;
-    --muted: #555;
-  }
+:root {
+  --bg: #f5f2ed;
+  --surface: #ffffff;
+  --dark: #141414;
+  --accent: #e8400c;
+  --accent2: #2d6a4f;
+  --border: #e0dbd3;
+  --muted: #9a9289;
+  --text: #1a1a1a;
+  --tag-bg: #eee9e2;
+}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Space Mono', monospace;
-    min-height: 100vh;
-    padding: 24px 16px;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
 
-  header {
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 20px;
-    margin-bottom: 28px;
-  }
+/* HEADER */
+.header {
+  background: var(--dark);
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
 
-  header h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(22px, 5vw, 38px);
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: -1px;
-  }
+.logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  color: #fff;
+  letter-spacing: 2px;
+}
 
-  header p {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 6px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+.logo span { color: var(--accent); }
 
-  .controls {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-  }
+.header-stats {
+  display: flex;
+  gap: 24px;
+}
 
-  select, button {
-    font-family: 'Space Mono', monospace;
-    font-size: 12px;
-    padding: 10px 16px;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    outline: none;
-    transition: all 0.15s;
-  }
+.hstat {
+  text-align: center;
+}
 
-  select:focus { border-color: var(--accent); }
+.hstat-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: #fff;
+  line-height: 1;
+}
 
-  button.primary {
-    background: var(--accent);
-    color: #000;
-    font-weight: 700;
-    border-color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+.hstat-label {
+  font-size: 9px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
 
-  button.primary:hover { opacity: 0.85; }
-  button.secondary:hover { border-color: var(--accent); color: var(--accent); }
+/* TABS */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  background: var(--surface);
+  padding: 0 28px;
+}
 
-  .status-bar {
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 16px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    min-height: 18px;
-  }
+.tab {
+  padding: 14px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-  .status-bar span { color: var(--accent); }
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
 
-  .leads-grid {
-    display: grid;
-    gap: 12px;
-  }
+/* PANELS */
+.panel { display: none; padding: 28px; }
+.panel.active { display: block; }
 
-  .lead-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 16px 18px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 10px;
-    align-items: start;
-    transition: border-color 0.15s;
-    animation: fadeIn 0.3s ease both;
-  }
+/* LEADS PANEL */
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  align-items: center;
+}
 
-  .lead-card:hover { border-color: #333; }
+.filter-btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+.filter-btn:hover, .filter-btn.active {
+  background: var(--dark);
+  color: #fff;
+  border-color: var(--dark);
+}
 
-  .lead-name {
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 15px;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
+.filter-btn.accent-btn {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
 
-  .lead-category {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: var(--accent2);
-    margin-bottom: 8px;
-  }
+.leads-list { display: grid; gap: 14px; }
 
-  .lead-weakness {
-    font-size: 11px;
-    color: #888;
-    line-height: 1.5;
-    margin-bottom: 10px;
-  }
+.lead-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 22px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: start;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  animation: slideUp 0.35s ease both;
+}
 
-  .lead-weakness strong { color: #bbb; }
+.lead-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  border-color: #ccc;
+}
 
-  .badges {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(12px); }
+  to { opacity:1; transform:translateY(0); }
+}
 
-  .badge {
-    font-size: 9px;
-    padding: 3px 8px;
-    border-radius: 20px;
-    border: 1px solid;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+.lead-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
+}
 
-  .badge.weak { border-color: #ff4444; color: #ff4444; }
-  .badge.no-web { border-color: var(--accent2); color: var(--accent2); }
-  .badge.low-post { border-color: #888; color: #888; }
+.lead-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  background: var(--tag-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
 
-  .lead-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: flex-end;
-  }
+.lead-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  color: var(--dark);
+  line-height: 1.1;
+}
 
-  .copy-btn {
-    font-size: 10px;
-    padding: 7px 12px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 4px;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.15s;
-    font-family: 'Space Mono', monospace;
-  }
+.lead-sub {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 2px;
+}
 
-  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .copy-btn.copied { border-color: var(--accent); color: var(--accent); }
+.lead-pain {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.55;
+  margin-bottom: 12px;
+  border-left: 3px solid var(--accent);
+  padding-left: 12px;
+}
 
-  .search-link {
-    font-size: 10px;
-    color: var(--muted);
-    text-decoration: none;
-    padding: 7px 12px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    white-space: nowrap;
-    transition: all 0.15s;
-    text-align: center;
-  }
+.tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
 
-  .search-link:hover { border-color: #555; color: var(--text); }
+.tag {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--tag-bg);
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
 
-  .dm-template {
-    display: none;
-    background: #0d0d0d;
-    border: 1px solid #1a1a1a;
-    border-radius: 4px;
-    padding: 12px;
-    font-size: 11px;
-    color: #aaa;
-    line-height: 1.6;
-    margin-top: 10px;
-    grid-column: 1 / -1;
-    position: relative;
-  }
+.tag.service { background: #e8f4f0; color: var(--accent2); }
+.tag.budget { background: #fdeee9; color: var(--accent); font-weight: 600; }
 
-  .dm-template.visible { display: block; }
+.dm-box {
+  background: #fafafa;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 12.5px;
+  color: #444;
+  line-height: 1.65;
+  display: none;
+  margin-top: 10px;
+}
 
-  .dm-template .label {
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--accent);
-    margin-bottom: 8px;
-  }
+.dm-box.open { display: block; }
 
-  .expand-btn {
-    font-size: 10px;
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    padding: 0;
-    font-family: 'Space Mono', monospace;
-    margin-top: 4px;
-  }
+.dm-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent2);
+  margin-bottom: 8px;
+}
 
-  .expand-btn:hover { color: var(--text); }
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  min-width: 110px;
+}
 
-  .empty {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-    font-size: 12px;
-  }
+.btn {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  display: block;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  width: 100%;
+}
 
-  .empty span { color: var(--accent); font-size: 28px; display: block; margin-bottom: 12px; }
+.btn:hover { background: var(--dark); color: #fff; border-color: var(--dark); }
+.btn.green { background: var(--accent2); color: #fff; border-color: var(--accent2); }
+.btn.green:hover { opacity: 0.85; }
+.btn.red-btn { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn.copied { background: var(--accent2); color: #fff; border-color: var(--accent2); }
 
-  .counter {
-    font-size: 10px;
-    color: var(--muted);
-    text-align: right;
-    margin-bottom: 16px;
-  }
+/* STATUS SELECTOR */
+.status-select {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  width: 100%;
+  font-weight: 500;
+}
 
-  .counter b { color: var(--accent); }
+/* CRM PANEL */
+.crm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
 
-  .loading {
-    text-align: center;
-    padding: 40px;
-    color: var(--muted);
-    font-size: 12px;
-  }
+.crm-col-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  .dot-anim::after {
-    content: '';
-    animation: dots 1.2s infinite;
-  }
+.crm-count {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  background: var(--tag-bg);
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: var(--muted);
+  font-weight: 500;
+}
 
-  @keyframes dots {
-    0% { content: '.'; }
-    33% { content: '..'; }
-    66% { content: '...'; }
-  }
+.crm-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.crm-card-name {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.crm-card-meta {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.crm-card-note {
+  font-size: 12px;
+  color: #555;
+  background: var(--tag-bg);
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  min-height: 32px;
+}
+
+.note-input {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  resize: none;
+  color: var(--text);
+  background: var(--surface);
+  margin-bottom: 8px;
+}
+
+.note-input:focus { outline: none; border-color: #aaa; }
+
+.crm-actions { display: flex; gap: 6px; }
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+.empty-text { font-size: 13px; }
+
+/* DAILY TARGETS */
+.daily-section {
+  background: var(--dark);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.daily-text h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.daily-text p {
+  font-size: 13px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.daily-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-ring {
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+
+.progress-ring svg { transform: rotate(-90deg); }
+.progress-ring-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: #fff;
+}
+
+.counter-controls { display: flex; gap: 8px; }
+
+.counter-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #333;
+  background: transparent;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.counter-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+/* SEARCH */
+.search-bar {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  width: 260px;
+  outline: none;
+}
+
+.search-bar:focus { border-color: #aaa; }
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.results-count {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>LAHORE LEAD FINDER</h1>
-  <p>Find weak social media businesses → DM them → close → get paid</p>
-</header>
-
-<div class="controls">
-  <select id="categorySelect">
-    <option value="all">All Categories</option>
-    <option value="restaurant">Restaurants & Cafes</option>
-    <option value="clothing">Clothing & Fashion</option>
-    <option value="salon">Salons & Spas</option>
-    <option value="realestate">Real Estate</option>
-    <option value="clinic">Clinics & Dermatology</option>
-    <option value="education">Tutoring & Education</option>
-    <option value="retail">Retail Shops</option>
-    <option value="gym">Gyms & Fitness</option>
-  </select>
-  <button class="primary" onclick="generateLeads()">FIND LEADS</button>
-  <button class="secondary" onclick="exportLeads()">EXPORT LIST</button>
+<div class="header">
+  <div class="logo">MARBIWAZ <span>CRM</span></div>
+  <div class="header-stats">
+    <div class="hstat"><div class="hstat-num" id="totalLeads">0</div><div class="hstat-label">Leads</div></div>
+    <div class="hstat"><div class="hstat-num" id="dmsSent">0</div><div class="hstat-label">DMed</div></div>
+    <div class="hstat"><div class="hstat-num" id="inConvo">0</div><div class="hstat-label">Talking</div></div>
+    <div class="hstat"><div class="hstat-num" id="closed">0</div><div class="hstat-label">Closed</div></div>
+  </div>
 </div>
 
-<div class="status-bar" id="statusBar">Select a category and hit FIND LEADS</div>
-<div class="counter" id="counter"></div>
-<div class="leads-grid" id="leadsGrid">
-  <div class="empty"><span>⚡</span>Hit FIND LEADS to generate your prospect list</div>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('leads')">🎯 Leads</div>
+  <div class="tab" onclick="switchTab('crm')">📊 Pipeline</div>
+</div>
+
+<!-- LEADS PANEL -->
+<div class="panel active" id="panel-leads">
+
+  <div class="daily-section">
+    <div class="daily-text">
+      <h2>TODAY'S TARGET: 30 DMs</h2>
+      <p>Consistency closes clients. Send 30 every day, no days off.</p>
+    </div>
+    <div class="daily-progress">
+      <div class="progress-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="#222" stroke-width="5"/>
+          <circle id="progressCircle" cx="32" cy="32" r="26" fill="none" stroke="#e8400c" stroke-width="5"
+            stroke-dasharray="163.4" stroke-dashoffset="163.4" stroke-linecap="round"/>
+        </svg>
+        <div class="progress-ring-text" id="dmCount">0</div>
+      </div>
+      <div class="counter-controls">
+        <button class="counter-btn" onclick="adjustDM(-1)">−</button>
+        <button class="counter-btn" onclick="adjustDM(1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="top-bar">
+    <div class="filters" id="filterBtns">
+      <button class="filter-btn active" onclick="filterLeads('all', this)">All</button>
+      <button class="filter-btn" onclick="filterLeads('restaurant', this)">🍽 Food & Cafe</button>
+      <button class="filter-btn" onclick="filterLeads('clothing', this)">👗 Fashion</button>
+      <button class="filter-btn" onclick="filterLeads('clinic', this)">🏥 Clinic</button>
+      <button class="filter-btn" onclick="filterLeads('realestate', this)">🏠 Real Estate</button>
+      <button class="filter-btn" onclick="filterLeads('education', this)">📚 Education</button>
+      <button class="filter-btn" onclick="filterLeads('retail', this)">🛍 Retail</button>
+      <button class="filter-btn" onclick="filterLeads('gym', this)">💪 Fitness</button>
+      <button class="filter-btn" onclick="filterLeads('events', this)">🎉 Events</button>
+    </div>
+    <input class="search-bar" id="searchInput" placeholder="Search leads..." oninput="renderLeads()">
+  </div>
+
+  <div class="results-count" id="resultsCount" style="margin-bottom:16px"></div>
+  <div class="leads-list" id="leadsList"></div>
+</div>
+
+<!-- CRM / PIPELINE PANEL -->
+<div class="panel" id="panel-crm">
+  <div style="margin-bottom:20px; font-size:13px; color:var(--muted)">Leads you've moved to pipeline appear here. Update status from the Leads tab.</div>
+  <div class="crm-grid" id="crmGrid"></div>
 </div>
 
 <script>
-const leadsData = {
-  restaurant: [
-    { name: "Bundu Khan", area: "MM Alam Rd", weakness: "Inconsistent posting, no Reels, posts go dark for weeks", badges: ["weak-social", "no-reels"], ig: "bundukhanofficial" },
-    { name: "Café Aylanto", area: "Gulberg", weakness: "Outdated grid, no Stories highlights, poor caption game", badges: ["low-post", "weak-captions"], ig: "cafeaylanto" },
-    { name: "Pret A Manger (local)", area: "DHA", weakness: "Zero engagement on posts, looks abandoned", badges: ["low-engagement"], ig: "" },
-    { name: "Charcoal BBQ", area: "Johar Town", weakness: "No website, Facebook only with old photos", badges: ["no-web", "outdated"], ig: "" },
-    { name: "Street1 Diner", area: "Gulberg III", weakness: "Bad photo quality, no consistent branding", badges: ["weak-social", "no-brand"], ig: "" },
-    { name: "Local tea/chai dhabas upgrading", area: "All over Lahore", weakness: "No online presence at all — massive opportunity", badges: ["no-web", "no-social"], ig: "" },
-    { name: "Kolachi Restaurant", area: "Liberty", weakness: "No Reels, static posts only, low reach", badges: ["no-reels", "low-reach"], ig: "" },
-    { name: "Monal Lahore", area: "Johar Town", weakness: "Inconsistent content schedule, weak CTA", badges: ["low-post", "weak-captions"], ig: "" },
-  ],
-  clothing: [
-    { name: "Local boutiques (DHA/Gulberg)", area: "DHA Phase 5-6", weakness: "Single owner selling on WhatsApp only, no page", badges: ["no-social", "no-web"], ig: "" },
-    { name: "Unstitched fabric shops", area: "Liberty Market", weakness: "Most have no Instagram, only physical walk-in", badges: ["no-social"], ig: "" },
-    { name: "Pret brands on Instagram", area: "Multiple", weakness: "Bad grid layout, no Reels, inconsistent posting", badges: ["weak-social", "no-reels"], ig: "" },
-    { name: "Ego", area: "Lahore wide", weakness: "Runs their own content but gaps in engagement strategy", badges: ["low-engagement"], ig: "egoofficialpk" },
-    { name: "Small lawn/khaddar shops", area: "Johar Town", weakness: "No digital presence, compete only on walk-in", badges: ["no-social", "no-web"], ig: "" },
-    { name: "Thrift / second-hand stores", area: "DHA", weakness: "Niche audience not being reached digitally", badges: ["weak-social"], ig: "" },
-  ],
-  salon: [
-    { name: "Local ladies salons", area: "Every neighbourhood", weakness: "Zero Instagram presence or outdated one with no bookings", badges: ["no-social", "no-web"], ig: "" },
-    { name: "Gents barbers upgrading", area: "DHA/Bahria", weakness: "No social media despite modern setup", badges: ["no-social"], ig: "" },
-    { name: "Nail studios", area: "Gulberg/DHA", weakness: "Personal WhatsApp only, missing Instagram reach", badges: ["no-social"], ig: "" },
-    { name: "Blow-dry bars", area: "DHA Phase 6", weakness: "Poor grid, no before/after content strategy", badges: ["weak-social", "no-reels"], ig: "" },
-    { name: "Skin clinics", area: "MM Alam", weakness: "Doctor-run, no marketing person on team", badges: ["no-social", "no-web"], ig: "" },
-    { name: "Threading & waxing salons", area: "Johar Town", weakness: "No online booking, no digital ads", badges: ["no-web", "no-social"], ig: "" },
-  ],
-  realestate: [
-    { name: "Independent property dealers", area: "DHA/Bahria", weakness: "WhatsApp only, no website, no brand", badges: ["no-web", "no-social"], ig: "" },
-    { name: "Small housing society offices", area: "Lahore outskirts", weakness: "No Instagram, relies on word of mouth only", badges: ["no-social"], ig: "" },
-    { name: "Interior designers", area: "Gulberg", weakness: "Portfolio only on Behance, no consistent IG content", badges: ["weak-social", "no-reels"], ig: "" },
-    { name: "Property listing pages", area: "Multiple", weakness: "Low quality graphics, no video tours on social", badges: ["weak-social"], ig: "" },
-    { name: "Renovation contractors", area: "DHA", weakness: "Zero digital presence despite high revenue work", badges: ["no-social", "no-web"], ig: "" },
-  ],
-  clinic: [
-    { name: "Dermatology clinics", area: "MM Alam Rd", weakness: "Doctor-run, no marketing budget, weak social", badges: ["weak-social", "no-reels"], ig: "" },
-    { name: "Dental clinics", area: "DHA/Gulberg", weakness: "No before/after content, no patient education posts", badges: ["weak-social"], ig: "" },
-    { name: "Physiotherapy centers", area: "Johar Town", weakness: "Zero Instagram, relies on referrals only", badges: ["no-social"], ig: "" },
-    { name: "Eye care clinics", area: "Lahore Cantt", weakness: "Outdated Facebook, no Instagram presence", badges: ["no-social", "outdated"], ig: "" },
-    { name: "Nutrition/diet clinics", area: "DHA", weakness: "Low followers, inconsistent content, no lead gen", badges: ["weak-social", "low-engagement"], ig: "" },
-    { name: "Laser hair removal studios", area: "Gulberg III", weakness: "Services not shown on social, relying on walk-in", badges: ["no-social", "no-web"], ig: "" },
-  ],
-  education: [
-    { name: "O/A Level tuition centers", area: "Johar Town/DHA", weakness: "WhatsApp groups only, no Instagram presence", badges: ["no-social"], ig: "" },
-    { name: "Online course creators", area: "Lahore", weakness: "Teaching on Zoom, no brand or landing page", badges: ["no-web", "no-social"], ig: "" },
-    { name: "Language learning institutes", area: "Gulberg", weakness: "Old website, no social media updates", badges: ["weak-social", "outdated"], ig: "" },
-    { name: "Coding bootcamps", area: "DHA", weakness: "No student testimonial content, weak reach", badges: ["weak-social", "no-reels"], ig: "" },
-    { name: "Art & drawing academies", area: "Model Town", weakness: "No portfolio content on Instagram, missing reach", badges: ["weak-social"], ig: "" },
-  ],
-  retail: [
-    { name: "Electronics shops", area: "Hall Road", weakness: "No Instagram, some Facebook but very inactive", badges: ["no-social"], ig: "" },
-    { name: "Grocery / organic stores", area: "DHA", weakness: "No delivery page, no social, missing digital orders", badges: ["no-web", "no-social"], ig: "" },
-    { name: "Book shops", area: "Gulberg", weakness: "Zero digital presence despite loyal customer base", badges: ["no-social", "no-web"], ig: "" },
-    { name: "Gift shops", area: "Liberty", weakness: "WhatsApp catalogue only, no Instagram storefront", badges: ["no-social"], ig: "" },
-    { name: "Baby product stores", area: "DHA Phase 4", weakness: "Facebook only, not leveraging Instagram or ads", badges: ["weak-social", "no-reels"], ig: "" },
-    { name: "Home decor shops", area: "MM Alam", weakness: "Poor product photography on social, low reach", badges: ["weak-social", "low-engagement"], ig: "" },
-  ],
-  gym: [
-    { name: "Local gyms & fitness centers", area: "Johar Town/DHA", weakness: "No transformation content, no lead gen, weak social", badges: ["weak-social", "no-reels"], ig: "" },
-    { name: "CrossFit boxes", area: "DHA Phase 6", weakness: "Community exists but not reflected online", badges: ["weak-social"], ig: "" },
-    { name: "Ladies-only fitness studios", area: "Gulberg", weakness: "No Instagram Reels, missing huge audience", badges: ["no-reels", "low-reach"], ig: "" },
-    { name: "Personal trainers", area: "Bahria Town", weakness: "No personal brand online, WhatsApp referrals only", badges: ["no-social", "no-web"], ig: "" },
-    { name: "Yoga & pilates studios", area: "DHA", weakness: "Minimal posts, no class schedule online", badges: ["weak-social", "low-post"], ig: "" },
-  ]
-};
+// ─── DATA ───────────────────────────────────────────────────────────────────
 
-const badgeMap = {
-  "weak-social": { label: "Weak Social", cls: "weak" },
-  "no-web": { label: "No Website", cls: "no-web" },
-  "no-social": { label: "No Social", cls: "weak" },
-  "low-post": { label: "Posts Rarely", cls: "low-post" },
-  "no-reels": { label: "No Reels", cls: "low-post" },
-  "low-engagement": { label: "Low Engagement", cls: "weak" },
-  "weak-captions": { label: "Bad Captions", cls: "low-post" },
-  "outdated": { label: "Outdated", cls: "low-post" },
-  "no-brand": { label: "No Branding", cls: "no-web" },
-  "low-reach": { label: "Low Reach", cls: "weak" },
-};
+const leads = [
+  // FOOD & CAFE — mid-size, money to spend
+  { id:1, cat:'restaurant', icon:'🍽', name:'Cafe Zouk', area:'DHA Phase 5', budget:'50k–80k/mo',
+    pain:'Multiple branches, zero consistent brand identity online. No Reels, no ad strategy. Competitors eating their lunch digitally.',
+    services:['Social Media','Meta Ads','Content Creation'],
+    ig:'cafezouk', dm:`Salam! Came across Cafe Zouk — love the vibe. I run Marbiwaz, a creative & digital agency in Lahore. Noticed your online presence isn't matching the quality of your actual cafe. We work with F&B brands on social media, ads, and content — would love to share what we'd do for Zouk specifically. 5 minutes?` },
 
-const dmTemplates = {
-  restaurant: (name) => `Hi ${name}! I was checking out your page — love the concept. I had a quick idea for your content that could seriously boost your reach on Instagram this month. Would you be open to a quick chat?`,
-  clothing: (name) => `Salam! Aapka brand dekha — bahut acha concept hai. Mera ek idea hai jo aapki Instagram reach dramatically barha sakta hai without ads. 2 minute ki baat karein?`,
-  salon: (name) => `Hi! I came across your salon and love the vibe. I work with beauty businesses in Lahore on their social media — had a specific idea for your page. Would you be open to hearing it?`,
-  realestate: (name) => `Hi! I noticed your listings — great properties. I help real estate businesses in Lahore get more leads through Instagram & digital presence. Quick question — are you currently running any social media for your brand?`,
-  clinic: (name) => `Hi! I came across your clinic and had an idea for patient education content that could build real trust and bring in new clients from Instagram. Would you be open to a quick call?`,
-  education: (name) => `Salam! Your institute/program looks great. I help education businesses in Lahore build their online presence and get more student inquiries through social media. Would love to share one idea with you — interested?`,
-  retail: (name) => `Hi! Saw your shop — great products. Quick question: are you getting online orders or is it mostly walk-in? I had an idea to help you sell more digitally without spending on ads.`,
-  gym: (name) => `Hi! Came across your gym — looks amazing. I work with fitness businesses in Lahore on their social media content and had a specific idea for your page. Would you be open to hearing it?`,
-};
+  { id:2, cat:'restaurant', icon:'🍽', name:'Cuckoo\'s Den', area:'Walled City / Lahore', budget:'60k–100k/mo',
+    pain:'Iconic location, tourist traffic, but almost no digital strategy to capitalize on it. Should be getting 10x the reach.',
+    services:['Social Media','Content Creation','Website'],
+    ig:'cuckoosdenlahore', dm:`Hi! Marbiwaz here — we\'re a Lahore-based creative agency. Cuckoo\'s Den has one of the most photogenic spots in the city. The content opportunity here is massive and it\'s not being tapped. We\'d love to show you what a proper content & social strategy looks like for a brand like yours. Would you be open to a quick call?` },
 
-let currentLeads = [];
-let currentCategory = 'all';
+  { id:3, cat:'restaurant', icon:'🍽', name:'Nando\'s Pakistan', area:'Multiple Lahore', budget:'80k–150k/mo',
+    pain:'Corporate brand but local social execution is weak — generic posts, no local flavour, engagement tanking.',
+    services:['Social Media','Meta Ads','Content Creation'],
+    ig:'nandospakistan', dm:`Hi! We run Marbiwaz, a creative agency in Lahore. We\'ve noticed Nando\'s Pakistan social content could use a more local, high-energy treatment — the brand has massive potential that generic posts aren\'t unlocking. We work with food brands on social + ads. Would the marketing team be open to a conversation?` },
 
-function generateLeads() {
-  const cat = document.getElementById('categorySelect').value;
-  currentCategory = cat;
-  const grid = document.getElementById('leadsGrid');
-  const status = document.getElementById('statusBar');
-  const counter = document.getElementById('counter');
+  { id:4, cat:'restaurant', icon:'🍽', name:'Burning Brownie', area:'Gulberg / DHA', budget:'50k–70k/mo',
+    pain:'Cult following but no real content strategy. User generated content only. Missing major reach with zero ad spend.',
+    services:['Social Media','Meta Ads','Content Creation'],
+    ig:'burningbrowniepk', dm:`Salam! Marbiwaz here — digital & creative agency in Lahore. Burning Brownie has a loyal fanbase but the social presence isn\'t converting that love into new customers. We help food brands scale reach and get more tables filled through content + ads. Worth a quick chat?` },
 
-  grid.innerHTML = '<div class="loading"><span class="dot-anim">Scanning Lahore businesses</span></div>';
-  status.innerHTML = 'Generating leads...';
-  counter.innerHTML = '';
+  { id:5, cat:'restaurant', icon:'🍽', name:'Savour Foods', area:'Multiple Lahore', budget:'60k–100k/mo',
+    pain:'Old school brand, massive loyal base but completely absent from digital. Ripe for a brand refresh + social launch.',
+    services:['Social Media','Website','Meta Ads','Content Creation'],
+    ig:'', dm:`Hi! We\'re Marbiwaz, a full-service creative agency in Lahore. Savour Foods is a legendary brand — but in 2025 there\'s a whole generation of customers who don\'t know you yet because you\'re barely online. We\'d love to change that. Can we schedule 15 minutes with the owner or marketing team?` },
 
-  setTimeout(() => {
-    let leads = [];
-    if (cat === 'all') {
-      Object.keys(leadsData).forEach(k => {
-        leadsData[k].forEach(l => leads.push({ ...l, category: k }));
-      });
-    } else {
-      leads = (leadsData[cat] || []).map(l => ({ ...l, category: cat }));
-    }
+  // FASHION / CLOTHING
+  { id:6, cat:'clothing', icon:'👗', name:'Sana Safinaz (local stores)', area:'Lahore wide', budget:'80k–120k/mo',
+    pain:'Big brand but local store social execution is patchy. Store-level content is terrible. Agency-level work needed.',
+    services:['Social Media','Content Creation','Meta Ads'],
+    ig:'sanasafinaz', dm:`Hi! Marbiwaz here — Lahore-based creative agency. We work with fashion brands on social content and paid ads. We\'ve noticed local Sana Safinaz content could use a major upgrade at the store level. Would love to speak with your marketing team about what that looks like.` },
 
-    currentLeads = leads;
+  { id:7, cat:'clothing', icon:'👗', name:'Generation Pakistan', area:'Gulberg', budget:'70k–100k/mo',
+    pain:'Strong brand story but weak digital storytelling. Reels underperforming. Ad creative looks dated.',
+    services:['Content Creation','Meta Ads','Social Media'],
+    ig:'generationpakistan', dm:`Salam! We\'re Marbiwaz — a creative and performance marketing agency in Lahore. Generation has a great brand story that isn\'t translating into your digital content right now. We help fashion brands fix exactly that — better content, better ads, more reach. Would you be open to a quick call?` },
 
-    if (!leads.length) {
-      grid.innerHTML = '<div class="empty"><span>🔍</span>No leads found for this category</div>';
-      return;
-    }
+  { id:8, cat:'clothing', icon:'👗', name:'Ethnicraft / local pret brands', area:'DHA/Gulberg', budget:'50k–80k/mo',
+    pain:'Mid-size pret brands spending 0 on digital but running sales heavily. Completely organic only, missing paid growth.',
+    services:['Meta Ads','Social Media','Content Creation'],
+    ig:'', dm:`Hi! Marbiwaz here — digital marketing agency in Lahore. We work with mid-size fashion brands who are doing solid sales but leaving money on the table by not running ads. We\'d love to show you what a Meta ads strategy looks like for a brand like yours. 10 minutes of your time?` },
 
-    status.innerHTML = `Found <span>${leads.length} potential clients</span> with weak digital presence in Lahore`;
-    counter.innerHTML = `Showing <b>${leads.length}</b> leads — send at least 30 DMs/day`;
+  { id:9, cat:'clothing', icon:'👗', name:'Maria.B outlet stores', area:'MM Alam Rd', budget:'80k–130k/mo',
+    pain:'Main brand is strong but outlet-level social is dead. Local targeting with ads could drive massive footfall.',
+    services:['Meta Ads','Social Media','Content Creation'],
+    ig:'mariab.pk', dm:`Hi! We\'re Marbiwaz, a Lahore-based creative & performance agency. Maria.B outlet has huge potential for local footfall campaigns through Meta ads — it\'s barely being tapped. We\'d love to walk your team through what a targeted local strategy looks like. Can we get 15 minutes?` },
 
-    grid.innerHTML = leads.map((lead, i) => {
-      const dmText = (dmTemplates[lead.category] || dmTemplates.restaurant)(lead.name);
-      const igLink = lead.ig ? `https://instagram.com/${lead.ig}` : `https://www.instagram.com/explore/search/?q=${encodeURIComponent(lead.name + ' Lahore')}`;
-      const badgesHTML = lead.badges.map(b => {
-        const bm = badgeMap[b] || { label: b, cls: 'low-post' };
-        return `<span class="badge ${bm.cls}">${bm.label}</span>`;
-      }).join('');
+  // CLINICS / AESTHETICS
+  { id:10, cat:'clinic', icon:'🏥', name:'Cosmetico Clinic', area:'Gulberg / DHA', budget:'60k–90k/mo',
+    pain:'Aesthetic clinic doing strong revenue but zero lead gen from digital. No ads running, social is inconsistent.',
+    services:['Meta Ads','Social Media','Content Creation'],
+    ig:'cosmetico.pk', dm:`Salam! Marbiwaz here — creative & digital agency in Lahore. We work with aesthetic clinics on lead generation through Instagram and Meta ads. Most clinics your size are leaving 30–40 new client inquiries per month on the table by not running the right ads. Want to see what that looks like for your clinic?` },
 
-      return `
-      <div class="lead-card" style="animation-delay:${i * 0.04}s">
-        <div>
-          <div class="lead-name">${lead.name}</div>
-          <div class="lead-category">${lead.category.toUpperCase()} · ${lead.area}</div>
-          <div class="lead-weakness"><strong>Why they need you:</strong> ${lead.weakness}</div>
-          <div class="badges">${badgesHTML}</div>
-          <div class="dm-template" id="dm-${i}">
-            <div class="label">📩 DM Template</div>
-            ${dmText}
+  { id:11, cat:'clinic', icon:'🏥', name:'Hair Club Pakistan', area:'DHA Lahore', budget:'60k–80k/mo',
+    pain:'High value service, strong word of mouth, but no digital funnel at all. Ads could change their entire growth.',
+    services:['Meta Ads','Website','Social Media'],
+    ig:'hairclubpakistan', dm:`Hi! We\'re Marbiwaz — full service digital agency in Lahore. Hair transplant is one of the highest ROI categories for Meta ads in Pakistan. We help medical and aesthetic clinics build proper digital funnels that generate consistent appointments. Would your team be open to a quick conversation?` },
+
+  { id:12, cat:'clinic', icon:'🏥', name:'Dr. Bilal Chaudhry Dental', area:'DHA', budget:'50k–70k/mo',
+    pain:'Premium dental clinic but no online presence to match. Patients are Googling, finding competitors first.',
+    services:['Website','Meta Ads','Social Media'],
+    ig:'', dm:`Hi! Marbiwaz here — digital agency in Lahore. Premium dental clinics in DHA are missing a massive chunk of patients who search online and end up booking with whoever has the best digital presence. We help clinics fix exactly that. Can we walk you through what that looks like for your practice?` },
+
+  // REAL ESTATE
+  { id:13, cat:'realestate', icon:'🏠', name:'Zameen.com agents (top performers)', area:'DHA/Bahria', budget:'60k–90k/mo',
+    pain:'Top agents making crores but spending nothing on personal brand. Whoever builds first wins the category.',
+    services:['Social Media','Content Creation','Website'],
+    ig:'', dm:`Salam! We\'re Marbiwaz — creative agency in Lahore. The top real estate agents in DHA who invest in personal branding right now will own the category in 12 months. We build social presence, content, and websites for agents. Would you be open to a quick call about what that looks like for your business?` },
+
+  { id:14, cat:'realestate', icon:'🏠', name:'Faisal Town Phase 2', area:'Lahore', budget:'80k–150k/mo',
+    pain:'Active housing project with 0 proper digital lead gen. Meta ads for real estate generate incredible ROI here.',
+    services:['Meta Ads','Content Creation','Social Media'],
+    ig:'', dm:`Hi! Marbiwaz here — performance marketing agency in Lahore. We run Meta ad campaigns for real estate projects — cost per lead for housing projects in Lahore right now is extremely low. Would love to show you what a proper campaign structure looks like for Faisal Town Phase 2.` },
+
+  { id:15, cat:'realestate', icon:'🏠', name:'Interior design studios', area:'DHA/Gulberg', budget:'60k–80k/mo',
+    pain:'Talented designers with no portfolio presence online. Portfolio = pipeline. They\'re losing clients they don\'t even know about.',
+    services:['Website','Social Media','Content Creation'],
+    ig:'', dm:`Hi! We\'re Marbiwaz — creative agency in Lahore. Interior design is one of the most visual businesses and yet most studios in Lahore have almost no online presence. Your portfolio should be your biggest sales tool. We\'d love to build that for you. 10 minutes?` },
+
+  // EDUCATION
+  { id:16, cat:'education', icon:'📚', name:'Beaconhouse corporate / admin', area:'Lahore HQ', budget:'100k–200k/mo',
+    pain:'Massive brand but digital execution is inconsistent across campuses. Agency-level work would unify and elevate.',
+    services:['Social Media','Content Creation','Meta Ads'],
+    ig:'beaconhousepk', dm:`Hi! Marbiwaz here — creative & digital agency in Lahore. We work with education brands on social media and content strategy. For an institution as large as Beaconhouse, a unified digital presence across campuses would have a huge impact. Would love to connect with your marketing team.` },
+
+  { id:17, cat:'education', icon:'📚', name:'STEM bootcamps / coding schools', area:'DHA/Gulberg', budget:'50k–80k/mo',
+    pain:'Enrollments dropping because no one knows they exist. Digital ads would flip this overnight.',
+    services:['Meta Ads','Social Media','Website'],
+    ig:'', dm:`Salam! We\'re Marbiwaz — digital marketing agency in Lahore. EdTech and coding bootcamps in Lahore are sitting on massive untapped demand. The right Meta ad campaign can fill your next cohort in 2 weeks. Want to see how?` },
+
+  { id:18, cat:'education', icon:'📚', name:'IELTS / language prep centers', area:'Johar Town', budget:'50k–70k/mo',
+    pain:'Competing on price instead of brand. Digital positioning + ads would shift them from commodity to authority.',
+    services:['Social Media','Meta Ads','Content Creation'],
+    ig:'', dm:`Hi! Marbiwaz here. IELTS prep centers in Lahore are a crowded space — the ones winning right now are the ones with the strongest digital presence and lead gen. We help education businesses stand out and fill seats. Can we show you what that looks like?` },
+
+  // RETAIL / ECOMMERCE
+  { id:19, cat:'retail', icon:'🛍', name:'Hoity Toity', area:'DHA/Gulberg', budget:'60k–90k/mo',
+    pain:'Strong offline brand, weak online. Shopify or website not being driven by any paid traffic.',
+    services:['Meta Ads','Social Media','Content Creation'],
+    ig:'hoitytoitypk', dm:`Hi! Marbiwaz here — digital & creative agency in Lahore. Hoity Toity has great products but the online store isn\'t getting nearly the traffic it should. We run Meta ads and social media for retail brands — would love to show you what a proper digital strategy looks like for your brand.` },
+
+  { id:20, cat:'retail', icon:'🛍', name:'Organic / health food stores', area:'DHA Phase 6', budget:'50k–70k/mo',
+    pain:'Niche but growing market. Zero paid acquisition. Content strategy would build a loyal customer base fast.',
+    services:['Social Media','Content Creation','Meta Ads'],
+    ig:'', dm:`Salam! We\'re Marbiwaz — creative agency in Lahore. Health and organic food is one of the fastest growing categories in Pakistan right now. The brands building an audience online today will dominate the next 3 years. We\'d love to help you be one of them. Quick call?` },
+
+  { id:21, cat:'retail', icon:'🛍', name:'Gul Ahmed retail stores', area:'Multiple Lahore', budget:'80k–150k/mo',
+    pain:'Legacy brand but local store digital is completely ignored. Local ad campaigns would drive serious footfall.',
+    services:['Meta Ads','Social Media','Content Creation'],
+    ig:'gulahmedofficial', dm:`Hi! We\'re Marbiwaz — performance marketing agency in Lahore. Gul Ahmed has iconic brand recall but local store footfall campaigns through Meta ads are completely untapped. We help retail brands drive walk-ins and online orders through targeted ads. Would love to connect with your marketing team.` },
+
+  // FITNESS
+  { id:22, cat:'gym', icon:'💪', name:'Shapes Gym', area:'DHA/Gulberg', budget:'50k–70k/mo',
+    pain:'Premium gym with zero premium digital presence. Membership drives should be running through Meta ads.',
+    services:['Meta Ads','Social Media','Content Creation'],
+    ig:'shapesgym', dm:`Salam! Marbiwaz here — digital agency in Lahore. Gym memberships are one of the easiest products to sell through Meta ads with the right creative. We help fitness brands run lead gen campaigns that fill membership slots. Would you be open to a quick call about what that looks like for Shapes?` },
+
+  { id:23, cat:'gym', icon:'💪', name:'Luxury ladies fitness studios', area:'DHA Phase 5-6', budget:'50k–80k/mo',
+    pain:'Target audience (high income women) is extremely active on Instagram. They\'re not being reached by any of these studios.',
+    services:['Social Media','Content Creation','Meta Ads'],
+    ig:'', dm:`Hi! We\'re Marbiwaz — creative agency in Lahore. Ladies fitness studios in DHA are massively underutilizing Instagram as a lead gen tool. Your audience is literally scrolling for exactly what you offer. We build content + ad strategies for fitness brands. Would love to show you what it looks like.` },
+
+  // EVENTS
+  { id:24, cat:'events', icon:'🎉', name:'Event management companies', area:'Lahore wide', budget:'60k–100k/mo',
+    pain:'Portfolio businesses with no portfolio online. Every event should be marketed — none of them are.',
+    services:['Social Media','Content Creation','Website'],
+    ig:'', dm:`Salam! Marbiwaz here — creative agency in Lahore. Event management companies build incredible moments that nobody sees online. We help event businesses turn every event into content that attracts the next 5 clients. Would you be open to a quick conversation?` },
+
+  { id:25, cat:'events', icon:'🎉', name:'Wedding photographers / videographers', area:'DHA/Gulberg', budget:'50k–70k/mo',
+    pain:'Word of mouth only. No Instagram strategy despite having the most shareable content possible.',
+    services:['Social Media','Content Creation','Website'],
+    ig:'', dm:`Hi! We\'re Marbiwaz — digital & creative agency in Lahore. Wedding photographers in Lahore with no Instagram strategy are leaving their best clients on the table. We help creatives build a digital presence that keeps their calendar booked. Worth a quick chat?` },
+];
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+
+let dmTodayCount = parseInt(localStorage.getItem('dmToday') || '0');
+let pipeline = JSON.parse(localStorage.getItem('pipeline') || '[]');
+let currentFilter = 'all';
+
+const STATUSES = ['DMed', 'Replied', 'In Convo', 'Proposal Sent', 'Closed', 'Not Interested'];
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+
+function init() {
+  renderLeads();
+  updateProgress();
+  updateHeaderStats();
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['leads','crm'][i] === tab);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  if (tab === 'crm') renderCRM();
+}
+
+// ─── LEADS ───────────────────────────────────────────────────────────────────
+
+function filterLeads(cat, btn) {
+  currentFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLeads();
+}
+
+function renderLeads() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  let filtered = leads.filter(l => {
+    const matchCat = currentFilter === 'all' || l.cat === currentFilter;
+    const matchSearch = !search || l.name.toLowerCase().includes(search) || l.area.toLowerCase().includes(search);
+    return matchCat && matchSearch;
+  });
+
+  document.getElementById('resultsCount').textContent = `${filtered.length} leads`;
+  document.getElementById('totalLeads').textContent = leads.length;
+
+  const list = document.getElementById('leadsList');
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No leads match your filter</div></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((l, i) => {
+    const inPipeline = pipeline.find(p => p.id === l.id);
+    const servicesHTML = l.services.map(s => `<span class="tag service">${s}</span>`).join('');
+    return `
+    <div class="lead-card" style="animation-delay:${i*0.04}s">
+      <div>
+        <div class="lead-top">
+          <div class="lead-icon">${l.icon}</div>
+          <div>
+            <div class="lead-name">${l.name}</div>
+            <div class="lead-sub">${l.area} · <span style="color:var(--accent);font-weight:600">${l.budget}</span></div>
           </div>
-          <button class="expand-btn" onclick="toggleDM(${i})">▾ Show DM Template</button>
         </div>
-        <div class="lead-actions">
-          <a class="search-link" href="${igLink}" target="_blank">Find on IG →</a>
-          <button class="copy-btn" onclick="copyDM(${i}, '${escapeQuotes(dmText)}', this)">Copy DM</button>
+        <div class="lead-pain">${l.pain}</div>
+        <div class="tags">
+          <span class="tag budget">PKR ${l.budget}</span>
+          ${servicesHTML}
         </div>
-      </div>`;
-    }).join('');
-  }, 600);
+        <div class="dm-box" id="dm-${l.id}">
+          <div class="dm-label">📩 DM to send</div>
+          ${l.dm}
+        </div>
+      </div>
+      <div class="card-actions">
+        <button class="btn" onclick="toggleDM(${l.id})">View DM</button>
+        <button class="btn" onclick="copyDM(${l.id}, this)">Copy DM</button>
+        ${l.ig ? `<a class="btn" href="https://instagram.com/${l.ig}" target="_blank">Find on IG</a>` : `<a class="btn" href="https://www.instagram.com/explore/search/?q=${encodeURIComponent(l.name+' lahore')}" target="_blank">Search IG</a>`}
+        ${inPipeline
+          ? `<select class="status-select" onchange="updateStatus(${l.id}, this.value)">${STATUSES.map(s=>`<option ${inPipeline.status===s?'selected':''}>${s}</option>`).join('')}</select>`
+          : `<button class="btn green" onclick="addToPipeline(${l.id})">+ Pipeline</button>`
+        }
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function toggleDM(i) {
-  const el = document.getElementById(`dm-${i}`);
-  const btn = el.nextElementSibling;
-  el.classList.toggle('visible');
-  btn.textContent = el.classList.contains('visible') ? '▴ Hide DM Template' : '▾ Show DM Template';
+function toggleDM(id) {
+  const el = document.getElementById('dm-' + id);
+  el.classList.toggle('open');
 }
 
-function copyDM(i, text, btn) {
-  navigator.clipboard.writeText(text).then(() => {
+function copyDM(id, btn) {
+  const lead = leads.find(l => l.id === id);
+  navigator.clipboard.writeText(lead.dm).then(() => {
     btn.textContent = '✓ Copied!';
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copy DM'; btn.classList.remove('copied'); }, 2000);
   });
 }
 
-function escapeQuotes(str) {
-  return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+// ─── PIPELINE ────────────────────────────────────────────────────────────────
+
+function addToPipeline(id) {
+  if (pipeline.find(p => p.id === id)) return;
+  const lead = leads.find(l => l.id === id);
+  pipeline.push({ id, name: lead.name, area: lead.area, budget: lead.budget, cat: lead.cat, status: 'DMed', note: '', addedAt: new Date().toLocaleDateString() });
+  savePipeline();
+  renderLeads();
+  updateHeaderStats();
 }
 
-function exportLeads() {
-  if (!currentLeads.length) { alert('Generate leads first!'); return; }
-  const rows = [['Business Name', 'Category', 'Area', 'Why They Need You', 'Weaknesses']];
-  currentLeads.forEach(l => {
-    rows.push([l.name, l.category, l.area, l.weakness, l.badges.join(', ')]);
-  });
-  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'lahore-leads.csv'; a.click();
+function updateStatus(id, status) {
+  const p = pipeline.find(p => p.id === id);
+  if (p) { p.status = status; savePipeline(); updateHeaderStats(); renderCRM(); }
 }
+
+function savePipeline() {
+  localStorage.setItem('pipeline', JSON.stringify(pipeline));
+}
+
+function renderCRM() {
+  const grid = document.getElementById('crmGrid');
+  if (!pipeline.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">Add leads to pipeline from the Leads tab</div></div>`;
+    return;
+  }
+  const cols = ['DMed','Replied','In Convo','Proposal Sent','Closed','Not Interested'];
+  grid.innerHTML = cols.map(col => {
+    const items = pipeline.filter(p => p.status === col);
+    const cardsHTML = items.map(p => `
+      <div class="crm-card">
+        <div class="crm-card-name">${p.name}</div>
+        <div class="crm-card-meta">${p.area} · ${p.budget} · Added ${p.addedAt}</div>
+        <textarea class="note-input" rows="2" placeholder="Add a note..." onchange="updateNote(${p.id}, this.value)">${p.note || ''}</textarea>
+        <div class="crm-actions">
+          <select class="status-select" style="flex:1" onchange="updateStatus(${p.id}, this.value)">${STATUSES.map(s=>`<option ${p.status===s?'selected':''}>${s}</option>`).join('')}</select>
+          <button class="btn" style="width:auto;padding:7px 10px" onclick="removeFromPipeline(${p.id})">✕</button>
+        </div>
+      </div>`).join('');
+    return `
+      <div>
+        <div class="crm-col-title">${col} <span class="crm-count">${items.length}</span></div>
+        ${cardsHTML || '<div style="font-size:12px;color:var(--muted);padding:8px 0">Empty</div>'}
+      </div>`;
+  }).join('');
+}
+
+function updateNote(id, note) {
+  const p = pipeline.find(p => p.id === id);
+  if (p) { p.note = note; savePipeline(); }
+}
+
+function removeFromPipeline(id) {
+  pipeline = pipeline.filter(p => p.id !== id);
+  savePipeline();
+  renderCRM();
+  renderLeads();
+  updateHeaderStats();
+}
+
+function updateHeaderStats() {
+  document.getElementById('dmsSent').textContent = pipeline.filter(p => p.status === 'DMed').length;
+  document.getElementById('inConvo').textContent = pipeline.filter(p => ['Replied','In Convo','Proposal Sent'].includes(p.status)).length;
+  document.getElementById('closed').textContent = pipeline.filter(p => p.status === 'Closed').length;
+}
+
+// ─── DM COUNTER ──────────────────────────────────────────────────────────────
+
+function adjustDM(delta) {
+  dmTodayCount = Math.max(0, Math.min(30, dmTodayCount + delta));
+  localStorage.setItem('dmToday', dmTodayCount);
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = dmTodayCount / 30;
+  const circ = 163.4;
+  document.getElementById('dmCount').textContent = dmTodayCount;
+  document.getElementById('progressCircle').style.strokeDashoffset = circ - (circ * pct);
+}
+
+init();
 </script>
 </body>
 </html>
