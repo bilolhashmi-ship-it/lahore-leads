@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lahore Lead Finder</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --border: #222;
+    --accent: #c8ff00;
+    --accent2: #ff6b35;
+    --text: #f0f0f0;
+    --muted: #555;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(22px, 5vw, 38px);
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+
+  header p {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  select, button {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 10px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    transition: all 0.15s;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  button.primary {
+    background: var(--accent);
+    color: #000;
+    font-weight: 700;
+    border-color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  button.primary:hover { opacity: 0.85; }
+  button.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .status-bar {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    min-height: 18px;
+  }
+
+  .status-bar span { color: var(--accent); }
+
+  .leads-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .lead-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: start;
+    transition: border-color 0.15s;
+    animation: fadeIn 0.3s ease both;
+  }
+
+  .lead-card:hover { border-color: #333; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .lead-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .lead-category {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  .lead-weakness {
+    font-size: 11px;
+    color: #888;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .lead-weakness strong { color: #bbb; }
+
+  .badges {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-size: 9px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge.weak { border-color: #ff4444; color: #ff4444; }
+  .badge.no-web { border-color: var(--accent2); color: var(--accent2); }
+  .badge.low-post { border-color: #888; color: #888; }
+
+  .lead-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+  }
+
+  .copy-btn {
+    font-size: 10px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent); color: var(--accent); }
+
+  .search-link {
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    white-space: nowrap;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .search-link:hover { border-color: #555; color: var(--text); }
+
+  .dm-template {
+    display: none;
+    background: #0d0d0d;
+    border: 1px solid #1a1a1a;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 11px;
+    color: #aaa;
+    line-height: 1.6;
+    margin-top: 10px;
+    grid-column: 1 / -1;
+    position: relative;
+  }
+
+  .dm-template.visible { display: block; }
+
+  .dm-template .label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .expand-btn {
+    font-size: 10px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0;
+    font-family: 'Space Mono', monospace;
+    margin-top: 4px;
+  }
+
+  .expand-btn:hover { color: var(--text); }
+
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .empty span { color: var(--accent); font-size: 28px; display: block; margin-bottom: 12px; }
+
+  .counter {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 16px;
+  }
+
+  .counter b { color: var(--accent); }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .dot-anim::after {
+    content: '';
+    animation: dots 1.2s infinite;
+  }
+
+  @keyframes dots {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>LAHORE LEAD FINDER</h1>
+  <p>Find weak social media businesses → DM them → close → get paid</p>
+</header>
+
+<div class="controls">
+  <select id="categorySelect">
+    <option value="all">All Categories</option>
+    <option value="restaurant">Restaurants & Cafes</option>
+    <option value="clothing">Clothing & Fashion</option>
+    <option value="salon">Salons & Spas</option>
+    <option value="realestate">Real Estate</option>
+    <option value="clinic">Clinics & Dermatology</option>
+    <option value="education">Tutoring & Education</option>
+    <option value="retail">Retail Shops</option>
+    <option value="gym">Gyms & Fitness</option>
+  </select>
+  <button class="primary" onclick="generateLeads()">FIND LEADS</button>
+  <button class="secondary" onclick="exportLeads()">EXPORT LIST</button>
+</div>
+
+<div class="status-bar" id="statusBar">Select a category and hit FIND LEADS</div>
+<div class="counter" id="counter"></div>
+<div class="leads-grid" id="leadsGrid">
+  <div class="empty"><span>⚡</span>Hit FIND LEADS to generate your prospect list</div>
+</div>
+
+<script>
+const leadsData = {
+  restaurant: [
+    { name: "Bundu Khan", area: "MM Alam Rd", weakness: "Inconsistent posting, no Reels, posts go dark for weeks", badges: ["weak-social", "no-reels"], ig: "bundukhanofficial" },
+    { name: "Café Aylanto", area: "Gulberg", weakness: "Outdated grid, no Stories highlights, poor caption game", badges: ["low-post", "weak-captions"], ig: "cafeaylanto" },
+    { name: "Pret A Manger (local)", area: "DHA", weakness: "Zero engagement on posts, looks abandoned", badges: ["low-engagement"], ig: "" },
+    { name: "Charcoal BBQ", area: "Johar Town", weakness: "No website, Facebook only with old photos", badges: ["no-web", "outdated"], ig: "" },
+    { name: "Street1 Diner", area: "Gulberg III", weakness: "Bad photo quality, no consistent branding", badges: ["weak-social", "no-brand"], ig: "" },
+    { name: "Local tea/chai dhabas upgrading", area: "All over Lahore", weakness: "No online presence at all — massive opportunity", badges: ["no-web", "no-social"], ig: "" },
+    { name: "Kolachi Restaurant", area: "Liberty", weakness: "No Reels, static posts only, low reach", badges: ["no-reels", "low-reach"], ig: "" },
+    { name: "Monal Lahore", area: "Johar Town", weakness: "Inconsistent content schedule, weak CTA", badges: ["low-post", "weak-captions"], ig: "" },
+  ],
+  clothing: [
+    { name: "Local boutiques (DHA/Gulberg)", area: "DHA Phase 5-6", weakness: "Single owner selling on WhatsApp only, no page", badges: ["no-social", "no-web"], ig: "" },
+    { name: "Unstitched fabric shops", area: "Liberty Market", weakness: "Most have no Instagram, only physical walk-in", badges: ["no-social"], ig: "" },
+    { name: "Pret brands on Instagram", area: "Multiple", weakness: "Bad grid layout, no Reels, inconsistent posting", badges: ["weak-social", "no-reels"], ig: "" },
+    { name: "Ego", area: "Lahore wide", weakness: "Runs their own content but gaps in engagement strategy", badges: ["low-engagement"], ig: "egoofficialpk" },
+    { name: "Small lawn/khaddar shops", area: "Johar Town", weakness: "No digital presence, compete only on walk-in", badges: ["no-social", "no-web"], ig: "" },
+    { name: "Thrift / second-hand stores", area: "DHA", weakness: "Niche audience not being reached digitally", badges: ["weak-social"], ig: "" },
+  ],
+  salon: [
+    { name: "Local ladies salons", area: "Every neighbourhood", weakness: "Zero Instagram presence or outdated one with no bookings", badges: ["no-social", "no-web"], ig: "" },
+    { name: "Gents barbers upgrading", area: "DHA/Bahria", weakness: "No social media despite modern setup", badges: ["no-social"], ig: "" },
+    { name: "Nail studios", area: "Gulberg/DHA", weakness: "Personal WhatsApp only, missing Instagram reach", badges: ["no-social"], ig: "" },
+    { name: "Blow-dry bars", area: "DHA Phase 6", weakness: "Poor grid, no before/after content strategy", badges: ["weak-social", "no-reels"], ig: "" },
+    { name: "Skin clinics", area: "MM Alam", weakness: "Doctor-run, no marketing person on team", badges: ["no-social", "no-web"], ig: "" },
+    { name: "Threading & waxing salons", area: "Johar Town", weakness: "No online booking, no digital ads", badges: ["no-web", "no-social"], ig: "" },
+  ],
+  realestate: [
+    { name: "Independent property dealers", area: "DHA/Bahria", weakness: "WhatsApp only, no website, no brand", badges: ["no-web", "no-social"], ig: "" },
+    { name: "Small housing society offices", area: "Lahore outskirts", weakness: "No Instagram, relies on word of mouth only", badges: ["no-social"], ig: "" },
+    { name: "Interior designers", area: "Gulberg", weakness: "Portfolio only on Behance, no consistent IG content", badges: ["weak-social", "no-reels"], ig: "" },
+    { name: "Property listing pages", area: "Multiple", weakness: "Low quality graphics, no video tours on social", badges: ["weak-social"], ig: "" },
+    { name: "Renovation contractors", area: "DHA", weakness: "Zero digital presence despite high revenue work", badges: ["no-social", "no-web"], ig: "" },
+  ],
+  clinic: [
+    { name: "Dermatology clinics", area: "MM Alam Rd", weakness: "Doctor-run, no marketing budget, weak social", badges: ["weak-social", "no-reels"], ig: "" },
+    { name: "Dental clinics", area: "DHA/Gulberg", weakness: "No before/after content, no patient education posts", badges: ["weak-social"], ig: "" },
+    { name: "Physiotherapy centers", area: "Johar Town", weakness: "Zero Instagram, relies on referrals only", badges: ["no-social"], ig: "" },
+    { name: "Eye care clinics", area: "Lahore Cantt", weakness: "Outdated Facebook, no Instagram presence", badges: ["no-social", "outdated"], ig: "" },
+    { name: "Nutrition/diet clinics", area: "DHA", weakness: "Low followers, inconsistent content, no lead gen", badges: ["weak-social", "low-engagement"], ig: "" },
+    { name: "Laser hair removal studios", area: "Gulberg III", weakness: "Services not shown on social, relying on walk-in", badges: ["no-social", "no-web"], ig: "" },
+  ],
+  education: [
+    { name: "O/A Level tuition centers", area: "Johar Town/DHA", weakness: "WhatsApp groups only, no Instagram presence", badges: ["no-social"], ig: "" },
+    { name: "Online course creators", area: "Lahore", weakness: "Teaching on Zoom, no brand or landing page", badges: ["no-web", "no-social"], ig: "" },
+    { name: "Language learning institutes", area: "Gulberg", weakness: "Old website, no social media updates", badges: ["weak-social", "outdated"], ig: "" },
+    { name: "Coding bootcamps", area: "DHA", weakness: "No student testimonial content, weak reach", badges: ["weak-social", "no-reels"], ig: "" },
+    { name: "Art & drawing academies", area: "Model Town", weakness: "No portfolio content on Instagram, missing reach", badges: ["weak-social"], ig: "" },
+  ],
+  retail: [
+    { name: "Electronics shops", area: "Hall Road", weakness: "No Instagram, some Facebook but very inactive", badges: ["no-social"], ig: "" },
+    { name: "Grocery / organic stores", area: "DHA", weakness: "No delivery page, no social, missing digital orders", badges: ["no-web", "no-social"], ig: "" },
+    { name: "Book shops", area: "Gulberg", weakness: "Zero digital presence despite loyal customer base", badges: ["no-social", "no-web"], ig: "" },
+    { name: "Gift shops", area: "Liberty", weakness: "WhatsApp catalogue only, no Instagram storefront", badges: ["no-social"], ig: "" },
+    { name: "Baby product stores", area: "DHA Phase 4", weakness: "Facebook only, not leveraging Instagram or ads", badges: ["weak-social", "no-reels"], ig: "" },
+    { name: "Home decor shops", area: "MM Alam", weakness: "Poor product photography on social, low reach", badges: ["weak-social", "low-engagement"], ig: "" },
+  ],
+  gym: [
+    { name: "Local gyms & fitness centers", area: "Johar Town/DHA", weakness: "No transformation content, no lead gen, weak social", badges: ["weak-social", "no-reels"], ig: "" },
+    { name: "CrossFit boxes", area: "DHA Phase 6", weakness: "Community exists but not reflected online", badges: ["weak-social"], ig: "" },
+    { name: "Ladies-only fitness studios", area: "Gulberg", weakness: "No Instagram Reels, missing huge audience", badges: ["no-reels", "low-reach"], ig: "" },
+    { name: "Personal trainers", area: "Bahria Town", weakness: "No personal brand online, WhatsApp referrals only", badges: ["no-social", "no-web"], ig: "" },
+    { name: "Yoga & pilates studios", area: "DHA", weakness: "Minimal posts, no class schedule online", badges: ["weak-social", "low-post"], ig: "" },
+  ]
+};
+
+const badgeMap = {
+  "weak-social": { label: "Weak Social", cls: "weak" },
+  "no-web": { label: "No Website", cls: "no-web" },
+  "no-social": { label: "No Social", cls: "weak" },
+  "low-post": { label: "Posts Rarely", cls: "low-post" },
+  "no-reels": { label: "No Reels", cls: "low-post" },
+  "low-engagement": { label: "Low Engagement", cls: "weak" },
+  "weak-captions": { label: "Bad Captions", cls: "low-post" },
+  "outdated": { label: "Outdated", cls: "low-post" },
+  "no-brand": { label: "No Branding", cls: "no-web" },
+  "low-reach": { label: "Low Reach", cls: "weak" },
+};
+
+const dmTemplates = {
+  restaurant: (name) => `Hi ${name}! I was checking out your page — love the concept. I had a quick idea for your content that could seriously boost your reach on Instagram this month. Would you be open to a quick chat?`,
+  clothing: (name) => `Salam! Aapka brand dekha — bahut acha concept hai. Mera ek idea hai jo aapki Instagram reach dramatically barha sakta hai without ads. 2 minute ki baat karein?`,
+  salon: (name) => `Hi! I came across your salon and love the vibe. I work with beauty businesses in Lahore on their social media — had a specific idea for your page. Would you be open to hearing it?`,
+  realestate: (name) => `Hi! I noticed your listings — great properties. I help real estate businesses in Lahore get more leads through Instagram & digital presence. Quick question — are you currently running any social media for your brand?`,
+  clinic: (name) => `Hi! I came across your clinic and had an idea for patient education content that could build real trust and bring in new clients from Instagram. Would you be open to a quick call?`,
+  education: (name) => `Salam! Your institute/program looks great. I help education businesses in Lahore build their online presence and get more student inquiries through social media. Would love to share one idea with you — interested?`,
+  retail: (name) => `Hi! Saw your shop — great products. Quick question: are you getting online orders or is it mostly walk-in? I had an idea to help you sell more digitally without spending on ads.`,
+  gym: (name) => `Hi! Came across your gym — looks amazing. I work with fitness businesses in Lahore on their social media content and had a specific idea for your page. Would you be open to hearing it?`,
+};
+
+let currentLeads = [];
+let currentCategory = 'all';
+
+function generateLeads() {
+  const cat = document.getElementById('categorySelect').value;
+  currentCategory = cat;
+  const grid = document.getElementById('leadsGrid');
+  const status = document.getElementById('statusBar');
+  const counter = document.getElementById('counter');
+
+  grid.innerHTML = '<div class="loading"><span class="dot-anim">Scanning Lahore businesses</span></div>';
+  status.innerHTML = 'Generating leads...';
+  counter.innerHTML = '';
+
+  setTimeout(() => {
+    let leads = [];
+    if (cat === 'all') {
+      Object.keys(leadsData).forEach(k => {
+        leadsData[k].forEach(l => leads.push({ ...l, category: k }));
+      });
+    } else {
+      leads = (leadsData[cat] || []).map(l => ({ ...l, category: cat }));
+    }
+
+    currentLeads = leads;
+
+    if (!leads.length) {
+      grid.innerHTML = '<div class="empty"><span>🔍</span>No leads found for this category</div>';
+      return;
+    }
+
+    status.innerHTML = `Found <span>${leads.length} potential clients</span> with weak digital presence in Lahore`;
+    counter.innerHTML = `Showing <b>${leads.length}</b> leads — send at least 30 DMs/day`;
+
+    grid.innerHTML = leads.map((lead, i) => {
+      const dmText = (dmTemplates[lead.category] || dmTemplates.restaurant)(lead.name);
+      const igLink = lead.ig ? `https://instagram.com/${lead.ig}` : `https://www.instagram.com/explore/search/?q=${encodeURIComponent(lead.name + ' Lahore')}`;
+      const badgesHTML = lead.badges.map(b => {
+        const bm = badgeMap[b] || { label: b, cls: 'low-post' };
+        return `<span class="badge ${bm.cls}">${bm.label}</span>`;
+      }).join('');
+
+      return `
+      <div class="lead-card" style="animation-delay:${i * 0.04}s">
+        <div>
+          <div class="lead-name">${lead.name}</div>
+          <div class="lead-category">${lead.category.toUpperCase()} · ${lead.area}</div>
+          <div class="lead-weakness"><strong>Why they need you:</strong> ${lead.weakness}</div>
+          <div class="badges">${badgesHTML}</div>
+          <div class="dm-template" id="dm-${i}">
+            <div class="label">📩 DM Template</div>
+            ${dmText}
+          </div>
+          <button class="expand-btn" onclick="toggleDM(${i})">▾ Show DM Template</button>
+        </div>
+        <div class="lead-actions">
+          <a class="search-link" href="${igLink}" target="_blank">Find on IG →</a>
+          <button class="copy-btn" onclick="copyDM(${i}, '${escapeQuotes(dmText)}', this)">Copy DM</button>
+        </div>
+      </div>`;
+    }).join('');
+  }, 600);
+}
+
+function toggleDM(i) {
+  const el = document.getElementById(`dm-${i}`);
+  const btn = el.nextElementSibling;
+  el.classList.toggle('visible');
+  btn.textContent = el.classList.contains('visible') ? '▴ Hide DM Template' : '▾ Show DM Template';
+}
+
+function copyDM(i, text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy DM'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function escapeQuotes(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+function exportLeads() {
+  if (!currentLeads.length) { alert('Generate leads first!'); return; }
+  const rows = [['Business Name', 'Category', 'Area', 'Why They Need You', 'Weaknesses']];
+  currentLeads.forEach(l => {
+    rows.push([l.name, l.category, l.area, l.weakness, l.badges.join(', ')]);
+  });
+  const csv = rows.map(r => r.map(c => `"${c}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'lahore-leads.csv'; a.click();
+}
+</script>
+</body>
+</html>
